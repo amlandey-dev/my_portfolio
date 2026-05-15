@@ -792,29 +792,49 @@
     /* ====================================================
        BRANDING CREDIT
     ==================================================== */
+    /* ── Credit badge: top-right corner, flush against HUD ── */
     #credit {
       position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 0;
+      right: 0;
       z-index: 200;
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      color: rgba(0,245,255,0.6);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px 5px 12px;
+      background: rgba(0,0,0,0.55);
+      border-left: 1px solid rgba(0,245,255,0.18);
+      border-bottom: 1px solid rgba(0,245,255,0.18);
+      border-bottom-left-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.56rem;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      color: rgba(0,245,255,0.55);
       text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(0,245,255,0.4);
+      text-shadow: 0 0 8px rgba(0,245,255,0.3);
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.8s ease 2s;
       white-space: nowrap;
+      backdrop-filter: blur(8px);
     }
     #credit.visible { opacity: 1; }
-    #credit::before, #credit::after {
-      content: ' — ';
+    /* small neon dot prefix */
+    #credit::before {
+      content: '◈';
       color: var(--neon-pink);
       text-shadow: 0 0 6px var(--neon-pink);
+      font-size: 0.55rem;
+    }
+    /* on mobile keep it tiny and tucked under HUD */
+    @media (max-width: 768px) {
+      #credit {
+        font-size: 0.48rem;
+        letter-spacing: 0.12em;
+        padding: 4px 10px 4px 9px;
+        bottom: auto;  /* override any earlier rule */
+      }
     }
 
     /* ====================================================
@@ -968,7 +988,7 @@
       #swipe-hint-right        { display: flex; }
       #nav-dots                { display: none !important; }
       #kbd-hint                { display: none !important; }
-      #credit                  { bottom: 62px; font-size: 0.6rem; }
+      /* credit is top-right; no override needed on mobile */
 
       /* HUD shrinks */
       #hud { padding: 8px 12px; }
@@ -1231,9 +1251,9 @@
       <div class="section-title">CONTACT <span>/ CONNECT</span></div>
       <div class="contact-grid">
         <div class="contact-terminal">
-          <div class="terminal-line">&gt; <a href="mailto:your@email.com" id="contact-email">amlannair10@gmail.com</a></div>
+          <div class="terminal-line">&gt; <a href="mailto:amlan.devv@gmail.com" id="contact-email">amlan.devv@gmail.com</a></div>
           <div class="terminal-line">&gt; STATUS: <span style="color:var(--neon-green)">ONLINE</span></div>
-          <div class="terminal-line">&gt; LOCATION: Kolkata, India</div>
+          <div class="terminal-line">&gt; LOCATION: Paschim Medinipur, WB, India</div>
           <div class="terminal-line">&gt; TIMEZONE: IST (UTC+5:30)</div>
           <div class="terminal-line">&gt; RESPONSE: ~24h</div>
           <div class="terminal-line">&gt; <span class="terminal-cursor"></span></div>
@@ -1256,7 +1276,7 @@
 <!-- ======================================================
      BRAND CREDIT
 ====================================================== -->
-<div id="credit">Developed By Amlan Dey</div>
+<div id="credit">Developed By&nbsp;Amlan Dey</div>
 
 <!-- ====================================================== -->
 <!-- MAIN JAVASCRIPT — Three.js scene + portfolio logic   -->
@@ -1343,10 +1363,10 @@ const PORTFOLIO = {
 
   /* ── SOCIAL LINKS ── */
   social: [
-    { icon: '💻', name: 'GitHub',   handle: '@amlandey',   href: '#' },
-    { icon: '💼', name: 'LinkedIn', handle: 'Amlan Dey',   href: '#' },
-    { icon: '🐦', name: 'Twitter',  handle: '@amlandey',   href: '#' },
-    { icon: '✉️', name: 'Email',    handle: 'amlannair10@gmail.com', href: 'mailto:amlannair10@gmail.com' },
+    { icon: '💻', name: 'GitHub',   handle: '@amlandey-dev',          href: 'https://github.com/amlandey-dev' },
+    { icon: '💼', name: 'LinkedIn', handle: 'amlan-dey-2b36a238b',    href: 'https://www.linkedin.com/in/amlan-dey-2b36a238b' },
+    { icon: '🐦', name: 'Twitter',  handle: '@devv_amlan',            href: 'https://x.com/devv_amlan' },
+    { icon: '✉️', name: 'Email',    handle: 'amlan.devv@gmail.com',   href: 'mailto:amlan.devv@gmail.com' },
   ],
 };
 
