@@ -8,7 +8,50 @@
   <!-- ======================================================
        THREE.JS CDN — Core 3D engine
   ====================================================== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+/* ==============================================================
+   TOUCH SWIPE NAVIGATION — horizontal swipe to change stations
+   ============================================================== */
+(function() {
+  var swipeStartX = 0;
+  var swipeStartY = 0;
+  var THRESHOLD   = 55;  // min px horizontal drag
+
+  document.addEventListener('touchstart', function(e) {
+    var t = e.touches[0];
+    swipeStartX = t.clientX;
+    swipeStartY = t.clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    var t     = e.changedTouches[0];
+    var dx    = t.clientX - swipeStartX;
+    var dy    = t.clientY - swipeStartY;
+
+    /* Only act if horizontal is dominant */
+    if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+
+    /* Ignore swipes starting from within panels to allow scrolling */
+    var target = e.target;
+    while (target && target !== document.body) {
+      if (target.classList && target.classList.contains('panel-card')) return;
+      target = target.parentElement;
+    }
+
+    if (dx < 0) nextStation();   // swipe left  → next
+    else         prevStation();  // swipe right → prev
+  }, { passive: true });
+})();
+
+/* Initialise swipe arrow visibility */
+(function initArrows() {
+  var lBtn = document.getElementById('swipe-hint-left');
+  var rBtn = document.getElementById('swipe-hint-right');
+  if (lBtn) lBtn.style.opacity = '0.2';
+  if (rBtn) rBtn.style.opacity = '0.8';
+})();
+
+</script>
 
   <!-- ======================================================
        GOOGLE FONTS — Rajdhani (display) + Share Tech Mono (terminal)
@@ -847,6 +890,158 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 2px; }
+
+    /* ====================================================
+       MOBILE NAV BAR — bottom station switcher (mobile only)
+    ==================================================== */
+    #mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      background: rgba(0,4,8,0.92);
+      border-top: 1px solid rgba(0,245,255,0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 0;
+      height: 56px;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: space-around;
+    }
+    .mob-nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 6px 2px;
+      border-top: 2px solid transparent;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .mob-nav-btn .mob-icon { font-size: 1rem; line-height: 1; }
+    .mob-nav-btn.active {
+      color: var(--neon-cyan);
+      border-top-color: var(--neon-cyan);
+    }
+
+    /* Swipe hint arrow buttons (mobile) */
+    #swipe-hint-left, #swipe-hint-right {
+      display: none;
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 150;
+      width: 36px; height: 56px;
+      background: rgba(0,245,255,0.08);
+      border: 1px solid rgba(0,245,255,0.2);
+      color: rgba(0,245,255,0.7);
+      font-size: 1.1rem;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #swipe-hint-left  { left: 4px; }
+    #swipe-hint-right { right: 4px; }
+
+    /* ====================================================
+       RESPONSIVE OVERRIDES
+    ==================================================== */
+    @media (max-width: 768px) {
+
+      /* Show mobile nav, hide desktop nav */
+      #mobile-nav              { display: flex; }
+      #swipe-hint-left,
+      #swipe-hint-right        { display: flex; }
+      #nav-dots                { display: none !important; }
+      #kbd-hint                { display: none !important; }
+      #credit                  { bottom: 62px; font-size: 0.6rem; }
+
+      /* HUD shrinks */
+      #hud { padding: 8px 12px; }
+      .hud-brand  { font-size: 0.75rem; }
+      .hud-station { font-size: 0.55rem; }
+      .hud-station strong { font-size: 0.65rem; }
+      .hud-speed  { font-size: 0.6rem; }
+
+      /* Station panels account for bottom nav */
+      .station-panel {
+        padding: 64px 10px 70px;
+        align-items: flex-start;
+        overflow-y: auto;
+      }
+
+      /* Panel card: full width, smaller padding */
+      .panel-card {
+        padding: 18px 14px;
+        max-height: none;
+        overflow-y: visible;
+        max-width: 100%;
+      }
+
+      .section-title { font-size: 1.3rem; margin-bottom: 16px; }
+      .section-label { font-size: 0.58rem; }
+
+      /* About: stack vertically */
+      .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+      }
+      .hologram-avatar {
+        max-width: 140px;
+        margin: 0 auto;
+        aspect-ratio: 0.85;
+      }
+      .about-bio p { font-size: 0.88rem; line-height: 1.6; }
+      .tag { font-size: 0.58rem; padding: 3px 9px; }
+
+      /* Skills: 2 columns on mobile */
+      .skills-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .skill-name { font-size: 0.72rem; }
+
+      /* Projects: single column */
+      .projects-grid { grid-template-columns: 1fr; gap: 14px; }
+      .project-title { font-size: 0.88rem; }
+      .project-desc  { font-size: 0.78rem; }
+
+      /* Achievements */
+      .ach-title { font-size: 0.82rem; }
+      .ach-desc  { font-size: 0.76rem; }
+
+      /* Contact */
+      .contact-grid { grid-template-columns: 1fr; gap: 16px; }
+      .contact-terminal { font-size: 0.65rem; }
+      .social-name { font-size: 0.78rem; }
+
+      /* Buttons */
+      .btn-link { font-size: 0.6rem; padding: 5px 10px; }
+
+      /* Skip button */
+      #skip-btn { bottom: 70px; right: 12px; font-size: 0.58rem; padding: 6px 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .skills-grid { grid-template-columns: 1fr; }
+      .section-title { font-size: 1.1rem; }
+      .about-bio p { font-size: 0.82rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -945,26 +1140,48 @@
         <!-- ── EDIT YOUR BIO HERE ── -->
         <div class="about-bio">
           <p>
-            Hey, I'm <strong>Amlan Dey</strong> — a developer, problem solver,
-            and tech explorer operating at the intersection of code, creativity,
-            and cybersecurity.
+            I'm <strong>Amlan Dey</strong> — a developer, a student pursuing
+            <strong>B.Tech in Computer Science &amp; Engineering</strong> at
+            Haldia Institute Of Technology, CTF hackathon winner, cybersecurity
+            enthusiast, and startup-driven builder obsessed with creating digital
+            experiences that don't feel ordinary.
           </p>
           <p>
-            I build <strong>fast, intuitive web experiences</strong> with a passion
-            for clean architecture and immersive UI. Whether it's hacking together
-            a hackathon project at 3 AM or crafting pixel-perfect interfaces, I
-            bring the same energy to everything I make.
+            I love turning ambitious ideas into products that are fast, immersive,
+            visually striking, and engineered to leave an impact. Whether it's a
+            full-stack application, an AI-powered platform, or a 3D interactive
+            web experience, I enjoy building things that make people stop and say,
+            <em style="color:var(--neon-cyan)">"Wait… this is actually a website?"</em>
           </p>
           <p>
-            Currently based in <strong>India</strong>, navigating the digital
-            frontier one commit at a time.
+            My interests live at the intersection of <strong>web development,
+            cybersecurity, creative engineering, and modern UI/UX</strong>. Winning
+            a CTF hackathon strengthened my passion for security, problem-solving,
+            and thinking beyond conventional approaches.
+          </p>
+          <p>
+            I'm passionate about experimenting with unconventional concepts,
+            exploring how systems work under the hood, and pushing technology beyond
+            basic functionality. From late-night debugging sessions and hackathons to
+            rapid prototyping and security-focused thinking — I genuinely enjoy the
+            process of building.
+          </p>
+          <p>
+            I don't just write code to make projects work. I build experiences designed
+            to feel futuristic, smooth, and memorable. With a strong
+            <strong>startup mindset</strong>, I'm constantly learning, iterating, and
+            building at the edge of creativity and technology. For me, coding isn't
+            just development — it's
+            <em style="color:var(--neon-pink)">digital craftsmanship mixed with
+            experimentation, innovation, and a little controlled chaos.</em>
           </p>
           <div class="tag-list">
+            <span class="tag">B.TECH CSE</span>
             <span class="tag">FULL-STACK DEV</span>
-            <span class="tag">OPEN SOURCE</span>
+            <span class="tag">CTF WINNER</span>
             <span class="tag">CYBERSECURITY</span>
             <span class="tag">AI ENTHUSIAST</span>
-            <span class="tag">HACKATHON WINNER</span>
+            <span class="tag">STARTUP MINDSET</span>
           </div>
         </div>
       </div>
@@ -1611,6 +1828,17 @@ function goStation(idx) {
     d.classList.toggle('active', i === idx);
   });
 
+  /* Mobile bottom nav */
+  document.querySelectorAll('.mob-nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  /* Show/hide swipe arrows */
+  const lBtn = document.getElementById('swipe-hint-left');
+  const rBtn = document.getElementById('swipe-hint-right');
+  if (lBtn) lBtn.style.opacity = idx === 0 ? '0.2' : '0.8';
+  if (rBtn) rBtn.style.opacity = idx === STATIONS.length-1 ? '0.2' : '0.8';
+
   /* Show panel + halt sound after camera arrives */
   setTimeout(() => {
     const panel = document.getElementById(STATIONS[idx].id);
@@ -1789,6 +2017,37 @@ window.addEventListener('resize', () => {
 });
 
 </script>
+
+
+<!-- ======================================================
+     MOBILE BOTTOM NAV
+====================================================== -->
+<nav id="mobile-nav" aria-label="Station navigation">
+  <button class="mob-nav-btn active" data-idx="0" onclick="goStation(0)">
+    <span class="mob-icon">👤</span>
+    <span>About</span>
+  </button>
+  <button class="mob-nav-btn" data-idx="1" onclick="goStation(1)">
+    <span class="mob-icon">⚡</span>
+    <span>Skills</span>
+  </button>
+  <button class="mob-nav-btn" data-idx="2" onclick="goStation(2)">
+    <span class="mob-icon">🚀</span>
+    <span>Projects</span>
+  </button>
+  <button class="mob-nav-btn" data-idx="3" onclick="goStation(3)">
+    <span class="mob-icon">🏆</span>
+    <span>Wins</span>
+  </button>
+  <button class="mob-nav-btn" data-idx="4" onclick="goStation(4)">
+    <span class="mob-icon">📡</span>
+    <span>Contact</span>
+  </button>
+</nav>
+
+<!-- Swipe arrow hints (mobile) -->
+<button id="swipe-hint-left"  onclick="prevStation()" aria-label="Previous station">‹</button>
+<button id="swipe-hint-right" onclick="nextStation()" aria-label="Next station">›</button>
 
 </body>
 </html>
