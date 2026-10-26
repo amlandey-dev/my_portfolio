@@ -8,7 +8,8 @@
   <!-- ======================================================
        THREE.JS CDN — Core 3D engine
   ====================================================== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
 /* ==============================================================
    TOUCH SWIPE NAVIGATION — horizontal swipe to change stations
    ============================================================== */
@@ -2421,7 +2422,14 @@ document.addEventListener('keydown', e => { if (e.code === 'Escape') closeLightb
   /* ── Detection 1: console probe (fires when the console is open) ── */
   let probed = false;
   const probe = new Image();
-  Object.defineProperty(probe, 'id', { get() { probed = true; return ''; } });
+  // DevTools previews enumerable properties. The default for a property
+  // created with defineProperty is non-enumerable, so the old probe was
+  // skipped by browsers even while the console was open.
+  Object.defineProperty(probe, 'id', {
+    enumerable: true,
+    configurable: true,
+    get() { probed = true; return ''; }
+  });
 
   /* ── Detection 2: docked DevTools shrinks the viewport ── */
   function sizeOpen() {
