@@ -1194,6 +1194,55 @@
       .about-bio p { font-size: 0.82rem; }
     }
 
+
+    /* ====================================================
+       INSPECT GUARD — easter egg shown when DevTools opens
+    ==================================================== */
+    #guard {
+      position: fixed; inset: 0; z-index: 99999;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #000; overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    #guard.on { display: flex; }
+    #guard-alert {
+      position: absolute; top: 16px; left: 0; right: 0;
+      text-align: center; font-size: 0.7rem; letter-spacing: 0.3em;
+      color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink);
+      animation: guardBlink 1s steps(2) infinite;
+    }
+    @keyframes guardBlink { 50% { opacity: 0.25; } }
+    #guard-canvas, #guard-fallback {
+      height: min(58vh, 420px); width: auto; max-width: 92vw;
+      filter: drop-shadow(0 0 22px rgba(0,245,255,0.35));
+    }
+    #guard-caption {
+      margin-top: 18px; padding: 0 16px; text-align: center;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(0.95rem, 3.2vw, 1.6rem);
+      color: var(--neon-cyan); text-shadow: 0 0 16px rgba(0,245,255,0.6);
+      min-height: 2.4em;
+    }
+    .guard-pop {
+      position: absolute; z-index: 2;
+      max-width: min(70vw, 420px);
+      padding: 8px 14px;
+      font-size: clamp(0.7rem, 2.4vw, 0.95rem); letter-spacing: 0.04em;
+      color: #fff; background: rgba(255,45,120,0.14);
+      border: 1px solid rgba(255,45,120,0.6);
+      text-shadow: 0 0 8px var(--neon-pink);
+      box-shadow: 0 0 18px rgba(255,45,120,0.25);
+      pointer-events: none;
+      animation: guardPop 3.2s ease forwards;
+    }
+    @keyframes guardPop {
+      0%   { opacity: 0; transform: scale(0.6) rotate(-3deg); }
+      12%  { opacity: 1; transform: scale(1.06) rotate(1deg); }
+      20%  { transform: scale(1) rotate(0); }
+      85%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-14px); }
+    }
   </style>
 </head>
 <body>
@@ -1408,6 +1457,13 @@
 <!-- ======================================================
      BRAND CREDIT
 ====================================================== -->
+<div id="guard" aria-hidden="true">
+  <div id="guard-alert">⚠ INSPECTOR DETECTED ⚠</div>
+  <canvas id="guard-canvas" width="360" height="321"></canvas>
+  <video id="guard-fallback" playsinline loop style="display:none"></video>
+  <div id="guard-caption"></div>
+</div>
+
 <div id="lightbox" onclick="closeLightbox()">
   <button id="lightbox-close" aria-label="Close">×</button>
   <img id="lightbox-img" alt="" onclick="event.stopPropagation()">
@@ -2191,7 +2247,7 @@ function animate() {
     speedDisplay.style.color = col;
   }
 
-  renderer.render(scene, camera);
+  if (!window.__guardActive) renderer.render(scene, camera);
 }
 
 animate();
@@ -2219,9 +2275,8 @@ function closeLightbox() {
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
 document.addEventListener('keydown', e => { if (e.code === 'Escape') closeLightbox(); });
-</script>
 
-  /* ==============================================================
+/* ==============================================================
    INSPECT GUARD (easter egg)
    When DevTools is opened, the site goes black, a green-screen
    video plays (chroma-keyed live on a canvas) and funny lines pop up.
@@ -2399,7 +2454,6 @@ document.addEventListener('keydown', e => { if (e.code === 'Escape') closeLightb
   }, true);
 })();
 </script>
-
 
 
 <!-- ======================================================
